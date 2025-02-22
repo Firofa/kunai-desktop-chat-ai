@@ -40,20 +40,19 @@ Kunai adalah aplikasi desktop chat AI yang menggunakan **model Ollama** untuk me
 
 ---
 
-## 🔧 Sesuaikan Model di `index.js`
+## 🔧 Ubah Model di `index.js`
 
-Sesuaikan model AI dengan mengedit bagian berikut di `index.js`:
+Ubah model AI dengan mengedit bagian berikut di `index.js`:
 
 ```js
-const ollama = require("ollama");
-
-const model = ollama.createModel({
-  name: "nama-model-anda",
-  version: "1.0.0",
+const response = await axios.post("http://localhost:11434/api/generate", {
+  model: "deepseek-r1:1.5b", // Ganti dengan model Ollama yang diinginkan
+  prompt: req.body.prompt,
+  stream: false,
 });
 ```
 
-> Ganti `nama-model-anda` dengan model Ollama yang ingin digunakan.
+> Ganti `deepseek-r1:1.5b` dengan model Ollama yang ingin digunakan.
 
 ---
 
