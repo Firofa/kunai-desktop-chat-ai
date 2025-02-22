@@ -4,57 +4,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ollama Chat</title>
+    <title>KunAI - Chat with AI by Kunci Belajar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Quicksand:wght@300..700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
+            font-family: 'Quicksand', sans-serif;
+            background-color: #2559cc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            max-height: 100vh;
+        }
+
+        .chat-container {
+            width: 100%;
+            height: 100%;
+            max-width: 80%;
+            max-height: 900px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
         }
 
         #chat-box {
-            width: 100%;
-            height: 400px;
+            flex-grow: 1;
             overflow-y: auto;
-            border: 1px solid #ccc;
             padding: 10px;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .message-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin: 10px 0;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        .user-message {
+            background-color: #cbd6f8;
+            text-align: right;
+            align-self: flex-end;
+        }
+
+        .ai-message {
+            background-color: #e5e5e5;
+            text-align: left;
+            align-self: flex-start;
+            margin-top: 5px;
         }
 
         #user-input {
-            width: 80%;
+            width: 100%;
             padding: 10px;
+            border: none;
+            border-radius: 20px;
+            background-color: #f0f0f0;
+            font-size: 14px;
+            resize: none;
+            min-height: 40px;
+            overflow-y: hidden;
         }
 
         #send-btn {
             padding: 10px;
+            border: none;
+            background-color: #2559cc;
+            color: white;
+            margin-left: 10px;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #send-btn:hover {
+            background-color: #007b9f;
+        }
+
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .header-container {
+            display: flex;
+            width: 80%;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header-container-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .header-text {
+            font-size: 50px;
+            color: #fefefe;
+        }
+
+        .header-text-small {
+            font-size: 25px;
+            margin-right: 10px;
+            color: #fefefe;
+        }
+
+        .footer-text {
+            color: #fefefe;
+        }
+
+        .loading-dots {
+            font-size: 18px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        #stop-btn {
+            background-color: #ff4747;
+            color: white;
+            padding: 10px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            display: none;
+        }
+
+        #stop-btn:hover {
+            background-color: #e33c3c;
         }
     </style>
 </head>
 
 <body>
-    <h2>Chat dengan AI (Ollama)</h2>
-    <div id="chat-box"></div>
-    <input type="text" id="user-input" placeholder="Tulis pesan...">
-    <button id="send-btn">Kirim</button>
+    <header class="header-container">
+        <div class="header-container-item">
+            <h1 class="header-text">KunAI <span class="header-text-small">by </span></h1>
+            <img src="./assets/kunci-belajar-white.png" alt="kunci-belajar-logo" width="150" />
+        </div>
+    </header>
+    <div class="chat-container">
+        <div id="chat-box"></div>
+        <div class="input-container">
+            <textarea id="user-input" placeholder="Tulis pesan..."></textarea>
+            <button id="send-btn">➤</button>
+            <button id="stop-btn">✖</button>
+        </div>
+    </div>
 
+    <footer class="footer-container">
+        <p class="footer-text">Build with Llama</p>
+    </footer>
     <script>
         document.getElementById("send-btn").addEventListener("click", sendMessage);
+        document.getElementById("stop-btn").addEventListener("click", stopTyping);
+
+        const inputBox = document.getElementById("user-input");
+        const stopBtn = document.getElementById("stop-btn");
 
         document.getElementById("user-input").addEventListener("keydown", (event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault(); // Mencegah membuat baris baru
+            if (event.key === "Enter" && event.shiftKey) {
+                return;
+            } else if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
                 sendMessage();
             }
         });
 
+        inputBox.addEventListener('input', () => {
+            inputBox.style.height = 'auto';
+            inputBox.style.height = `${inputBox.scrollHeight}px`;
+        });
+
+        let typingInterval;
+
         async function sendMessage() {
-            const inputBox = document.getElementById("user-input");
             const chatBox = document.getElementById("chat-box");
             const userMessage = inputBox.value.trim();
 
             if (!userMessage) return;
 
-            chatBox.innerHTML += `<p><b>Anda:</b> ${userMessage}</p>`;
+            const messageContainer = document.createElement("div");
+            messageContainer.className = "message-container";
+
+            const userMsgElement = document.createElement("div");
+            userMsgElement.className = "message user-message";
+            userMsgElement.innerHTML = `<b>Anda:</b> ${userMessage}`;
+
+            messageContainer.appendChild(userMsgElement);
+            chatBox.appendChild(messageContainer);
+
             inputBox.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Menambahkan elemen loading saat menunggu respons dari AI
+            const aiMsgElement = document.createElement("div");
+            aiMsgElement.className = "message ai-message";
+            aiMsgElement.innerHTML = `<b>KunAI:</b> <span class="loading-dots">...</span>`;
+            messageContainer.appendChild(aiMsgElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
                 const response = await fetch("http://localhost:57425/chat", {
@@ -64,14 +238,80 @@
                 });
 
                 const data = await response.json();
-                chatBox.innerHTML += `<p><b>AI:</b> ${data.reply}</p>`;
+
+                // Menghapus elemen loading dan mulai animasi penulisan
+                aiMsgElement.innerHTML = `<b>KunAI:</b> <span class="loading-dots">...</span>`;
+                stopBtn.style.display = 'inline-block';  // Menampilkan tombol Stop
+                typeWriter(aiMsgElement, data.reply);
+
                 chatBox.scrollTop = chatBox.scrollHeight;
             } catch (error) {
-                chatBox.innerHTML += `<p style="color:red;"><b>Error:</b> ${error.message}</p>`;
+                const errorMsgElement = document.createElement("div");
+                errorMsgElement.className = "message ai-message";
+                errorMsgElement.style.color = "red";
+                errorMsgElement.innerHTML = `<b>Error:</b> ${error.message}`;
+                messageContainer.appendChild(errorMsgElement);
             }
         }
 
+        function typeWriter(element, text, i = 0, speed = 30) {
+            const formattedText = formatAIMessage(text);
+            if (i < formattedText.length - 1) {
+                element.innerHTML = `<b>KunAI:</b> ${formattedText.substring(0, i + 1)}<span class="loading-dots">...</span>`;
+                i++;
+                typingInterval = setTimeout(() => typeWriter(element, formattedText, i, speed), speed);
+            } else if (i < formattedText.length) {
+                element.innerHTML = `<b>KunAI:</b> ${formattedText.substring(0, i + 1)}`;
+                i++;
+                typingInterval = setTimeout(() => typeWriter(element, formattedText, i, speed), speed);
+            }
+        }
+
+        function stopTyping() {
+            clearTimeout(typingInterval);  // Berhentikan penulisan AI
+            stopBtn.style.display = 'none';  // Sembunyikan tombol Stop
+        }
+
+        function formatAIMessage(text) {
+            // Format teks tebal
+            let formattedText = text.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>");
+
+            // // Kumpulkan semua LaTeX block dan inline
+            // const latexBlocks = [];
+            // formattedText = formattedText.replace(/\$\$(.+?)\$\$/gs, (match, latex) => {
+            //     latexBlocks.push({ type: 'block', latex });
+            //     return `__LATEX_BLOCK_${latexBlocks.length - 1}__`; // Tempat penampung
+            // });
+
+            // const latexInlines = [];
+            // formattedText = formattedText.replace(/\$(.+?)\$/g, (match, latex) => {
+            //     latexInlines.push({ type: 'inline', latex });
+            //     return `__LATEX_INLINE_${latexInlines.length - 1}__`; // Tempat penampung
+            // });
+
+            // // Render semua LaTeX block dan inline
+            // latexBlocks.forEach((item, idx) => {
+            //     const renderedLatex = katex.renderToString(item.latex, { displayMode: true, throwOnError: false });
+            //     formattedText = formattedText.replace(`__LATEX_BLOCK_${idx}__`, renderedLatex);
+            // });
+
+            // latexInlines.forEach((item, idx) => {
+            //     const renderedLatex = katex.renderToString(item.latex, { throwOnError: false });
+            //     formattedText = formattedText.replace(`__LATEX_INLINE_${idx}__`, renderedLatex);
+            // });
+
+            // Format baris baru menjadi <p>
+            if (formattedText.includes('\n')) {
+                formattedText = formattedText
+                    .split('\n')
+                    .map(item => `<p>${item}</p>`)
+                    .join('');
+            }
+
+            return formattedText;
+        }
     </script>
+
 </body>
 
 </html>

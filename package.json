@@ -1,10 +1,30 @@
 {
   "name": "desktopchatai",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx electron ."
+    "start": "npx electron .",
+    "build": "electron-builder",
+    "dev:watch": "npx electronmon --trace-warnings ."
+  },
+  "build": {
+    "productName": "Kunai",
+    "files": [
+      "index.js",
+      "index.html",
+      "assets",
+      "node_modules"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "Kunai - Desktop Chat AI"
+    }
   },
   "keywords": [],
   "author": "",
@@ -13,7 +33,10 @@
   "dependencies": {
     "axios": "^1.7.9",
     "cors": "^2.8.5",
-    "electron": "^34.0.2",
     "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "electron": "^34.0.2",
+    "electron-builder": "^25.1.8"
   }
 }

@@ -14,7 +14,7 @@ const port = 57425;
 server.post("/chat", async (req, res) => {
   try {
     const response = await axios.post("http://localhost:11434/api/generate", {
-      model: "llama3.2:latest", // Ganti dengan model Ollama yang diinginkan
+      model: "deepseek-r1:1.5b", // Ganti dengan model Ollama yang diinginkan
       prompt: req.body.prompt,
       stream: false,
     });
@@ -33,6 +33,7 @@ async function createWindow() {
     const win = new BrowserWindow({
       width: 800,
       height: 600,
+      icon: path.join(__dirname, "assets/icon.png"),
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
